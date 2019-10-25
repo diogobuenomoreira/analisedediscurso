@@ -2,6 +2,7 @@
 
 import xml.etree.ElementTree as ET
 import requests
+import unicodedata
 
 arq = open('dados.txt', 'w')
 
@@ -71,6 +72,8 @@ for deputado in deputados:
                 #print(discurso.text)
                 #print("\n")
         if len(discurso) == 2:
+            discurso[1] = discurso[1].encode('ascii', 'ignore')
+     	   # print (type(perfil), type(discurso[1]))
             arq.write(perfil[0]+";"+perfil[1]+";"+perfil[2]+";"+perfil[3]+";"+perfil[4]+";"+perfil[5]+";"+discurso[0]+";"+discurso[1])
         print perfil,discurso
 arq.close()
