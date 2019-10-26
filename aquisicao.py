@@ -1,13 +1,18 @@
 # -*- coding: UTF-8 -*-
-
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 import xml.etree.ElementTree as ET
 import requests
 import codecs
 
-with codecs.open('dados.txt', 'w', 'utf-8') as arq:
+arquivo = "psol2019" + ".data"
 
-    deputados = [204534, 204464, 160672, 92346, 160976]
-    periodos = [["2015-01-01", "2015-06-30"],
+with codecs.open(arquivo, 'w', 'utf-8') as arq:
+    PSOL = [204509, 205548, 134812, 204407, 152605, 73531, 74784, 76874, 204535, 204464]
+    NOVO = [204532, 204519, 204461, 156190, 204523, 204365, 204528, 204516]
+    #deputados = [204534, 204464, 160672, 92346, 160976]
+    vetor20152019 = [["2015-01-01", "2015-06-30"],
                 ["2015-07-01", "2015-12-31"],
                 ["2016-01-01", "2016-06-30"],
                 ["2016-07-01", "2016-12-31"],
@@ -18,6 +23,19 @@ with codecs.open('dados.txt', 'w', 'utf-8') as arq:
                 ["2019-01-01", "2019-06-30"],
                 ["2019-07-01", "2019-12-31"]]
 
+    vetor2019 = [["2019-01-01", "2019-01-31"],
+                ["2019-02-01", "2019-02-28"],
+                ["2019-03-01", "2019-03-31"],
+                ["2019-04-01", "2019-04-30"],
+                ["2017-05-01", "2017-05-31"],
+                ["2017-06-01", "2017-06-30"],
+                ["2018-07-01", "2018-07-31"],
+                ["2018-08-01", "2018-08-31"],
+                ["2019-09-01", "2019-09-30"],
+                ["2019-10-01", "2019-10-31"]]
+
+    deputados = PSOL
+    periodos = vetor2019
     for deputado in deputados:
         url = "https://dadosabertos.camara.leg.br/api/v2/deputados/" + str(deputado)
         header = { 'Accept': 'application/xml' }
@@ -29,25 +47,17 @@ with codecs.open('dados.txt', 'w', 'utf-8') as arq:
         perfil = []
         for child in root.iter(filtro):
             for id in child.findall("id"):
-                #print(id.tag, id.text)
                 perfil.append(id.text)
             for nomeEleitoral in child.findall("nomeEleitoral"):
-                #print(nomeEleitoral.tag, nomeEleitoral.text)
                 perfil.append(nomeEleitoral.text)
             for sexo in child.findall("sexo"):
-                #print(sexo.tag, sexo.text)
                 perfil.append(sexo.text)
             for escolaridade in child.findall("escolaridade"):
-                #print(escolaridade.tag, escolaridade.text)
                 perfil.append(escolaridade.text)
             for siglaUf in child.findall("siglaUf"):
-                #print(siglaUf.tag, siglaUf.text)
                 perfil.append(siglaUf.text)
             for siglaPartido in child.findall("siglaPartido"):
-                #print(siglaPartido.tag, siglaPartido.text)
                 perfil.append(siglaPartido.text)
-
-        #print perfil
 
         for periodo in periodos:
             url = "https://dadosabertos.camara.leg.br/api/v2/deputados/"+str(deputado)+"/discursos?dataInicio="+str(periodo[0])+"&dataFim="+str(periodo[1])+"&ordenarPor=dataHoraInicio&ordem=ASC"
@@ -56,26 +66,16 @@ with codecs.open('dados.txt', 'w', 'utf-8') as arq:
 
             tree =  ET.ElementTree(ET.fromstring(r.content))
 
-            #arquivo = "discursos?dataInicio=2015-01-01.xml"
-            #tree =  ET.parse(arquivo)
-
             root = tree.getroot()
 
             filtro = "*"
             discurso = []
+            tipodiscurso = []
             for child in root.iter(filtro):
-                #print(child.tag, child.text)
-                for tipoDiscurso in child.findall("tipoDiscurso"):
-                    #print(tipoDiscurso.text)
-                    discurso.append(tipoDiscurso.text)
+                for tipo in child.findall("tipoDiscurso"):
+                    tipodiscurso.append(tipo.text)
                 for transcricao in child.findall("transcricao"):
                     discurso.append(transcricao.text)
-                    #print(discurso.text)
-                    #print("\n")
-            if len(discurso) == 2:
-                try:
-                    arq.write("\n"+perfil[0]+";"+perfil[1]+";"+perfil[2]+";"+perfil[3]+";"+perfil[4]+";"+perfil[5]+";"+discurso[0]+";"+discurso[1])
-    #                if(periodo != periodos[len(periodos)-1]):
-                    arq.write("\n \n-------------------------------------------------------------------------------------\n")
-                except: pass
-            print perfil,discurso
+            for d in range(len(discurso)):
+                arq.write(str(perfil[0])+";"+str(perfil[1])+";"+str(perfil[2])+";"+str(perfil[3])+";"+str(perfil[4])+";"+str(perfil[5])+";"+str(tipodiscurso[d])+";"+str(discurso[d])+"*\n")
+print "RESULTADOS GRAVADOS EM " + arquivo
