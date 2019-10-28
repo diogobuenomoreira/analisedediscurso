@@ -1,0 +1,50 @@
+# Natural Language Processing
+
+# Importing the libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Importing the dataset
+dataset = pd.read_csv('Restaurant_Reviews.tsv',sep='\t')
+
+# Cleaning the texts
+import re
+import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+
+#remove pontuação e mantém apenas as letras
+review = re.sub('[^a-zA-Z^ã^ç^á^é^í^ó^ú^Á^É^Í^Ó^Ú]', ' ', dataset['Review'][0]) 
+
+#coloca todas letras em minúsculo 
+review = review.lower()   
+
+#separa cada um como carácter
+review = review.split()
+
+#esta parte deixa apenas os radicais da palavra
+ps = PorterStemmer()
+review = [ps.stem(word) for word in review if not word in set(stopwords.words('portuguese'))]
+
+review = ' '.join(review)
+
+#loop for para ler e tratar todos os dados
+'''
+corpus = []
+for i in range(0, #colocar range dos nossos dados):
+    review = re.sub('[^a-zA-Z^ã^ç^á^é^í^ó^ú^Á^É^Í^Ó^Ú]', ' ', dataset['Review'][i])
+    review = review.lower()
+    review = review.split()
+    ps = PorterStemmer()
+    review = [ps.stem(word) for word in review if not word in set(stopwords.words('portuguese'))]
+    review = ' '.join(review)
+    corpus.append(review)
+
+# Creating the Bag of Words model
+from sklearn.feature_extraction.text import CountVectorizer
+cv = CountVectorizer(max_features = 1500#dependerá do tamanho dos nossos dados)
+X = cv.fit_transform(corpus).toarray()
+y = dataset.iloc[:, 1].values
+'''
